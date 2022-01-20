@@ -84,6 +84,36 @@ $(".list-group").on("blur", "input[type='text']", function () {
   $(this).replaceWith(taskSpan);
 });
 
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function (event) {},
+  deactivate: function (event) {},
+  over: function (event) {},
+  out: function (event) {},
+  update: function (event) {
+    var tempArr = [];
+    $(this)
+      .children()
+      .each(function () {
+        var text = $(this).find("p").text().trim();
+        var date = $(this).find("span").text().trim();
+
+        tempArr.push({
+          text: text,
+          date: date,
+        });
+      });
+
+    var arrName = $(this).attr("id").replace("list-", "");
+
+    tasks[arrName] = tempArr;
+    saveTasks();
+  },
+});
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function () {
   // clear values
@@ -116,6 +146,21 @@ $("#task-form-modal .btn-primary").click(function () {
 
     saveTasks();
   }
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function (even, ui) {
+    ui.draggable.remove();
+    // update calls saveTasks() whenever there's an update to the lists, including when a tasl is deleted. so no need to call saveTasks() again.
+  },
+  over: function (event, ui) {
+    console.log("over");
+  },
+  out: function (event, ui) {
+    console.log("out");
+  },
 });
 
 // remove all tasks
